@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FIS Estimator">
+<meta name="theme-color" content="#1c2610">
+<title>FIS Estimator</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,sans-serif;background:#f5f4f0;color:#1c2610;min-height:100vh;}
+input,select,textarea,button{font-family:inherit;}
+input[type=text],input[type=email],input[type=tel],input[type=date],input[type=number],select{font-size:16px;-webkit-appearance:none;appearance:none;}
+button{-webkit-tap-highlight-color:transparent;touch-action:manipulation;cursor:pointer;}
+.header{background:#1c2610;padding:0 16px;display:flex;align-items:center;}
+.hi{flex:1;display:flex;align-items:center;gap:12px;padding:12px 0;}
+.hi img{width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0;}
+.hn{color:white;font-weight:700;font-size:14px;line-height:1.2;}
+.hs{color:#6b8c2a;font-size:11px;}
+.tabs{display:flex;}
+.tab{padding:10px 14px;border:none;background:transparent;color:#777;font-size:13px;font-weight:500;border-radius:6px 6px 0 0;white-space:nowrap;}
+.tab.on{background:#f5f4f0;color:#1c2610;}
+.main{max-width:960px;margin:0 auto;padding:18px 14px;display:flex;flex-direction:column;gap:14px;}
+.card{background:white;border-radius:12px;padding:18px;border:1px solid #e8e6e0;}
+.slbl{font-size:11px;font-weight:700;color:#4a5e23;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.g3{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px;}
+@media(max-width:600px){.g2{grid-template-columns:1fr;}.g3{grid-template-columns:1fr 1fr 1fr;}}
+.fld{display:flex;flex-direction:column;gap:4px;}
+.fld label{font-size:12px;font-weight:500;color:#666;}
+.fld input,.fld textarea{width:100%;padding:10px 12px;border:1px solid #e0ddd6;border-radius:8px;background:white;outline:none;}
+.fld input:focus,.fld textarea:focus{border-color:#4a5e23;}
+.fld textarea{resize:vertical;min-height:80px;font-size:15px;line-height:1.5;}
+.sw{position:relative;}
+.sw::after{content:"\25BE";position:absolute;right:11px;top:50%;transform:translateY(-50%);color:#888;pointer-events:none;font-size:11px;}
+.sw select{width:100%;padding:10px 28px 10px 12px;border:1px solid #e0ddd6;border-radius:8px;background:white;outline:none;}
+.srow{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.srow input{flex:1;min-width:150px;padding:9px 12px;border:1px solid #e0ddd6;border-radius:8px;font-size:15px;outline:none;}
+.pscroll{max-height:210px;overflow-y:auto;border:1px solid #f0ede6;border-radius:8px;margin-bottom:14px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{background:#f5f3ef;padding:7px 10px;text-align:left;font-weight:500;color:#666;position:sticky;top:0;z-index:1;}
+tbody tr{border-top:1px solid #f0ede6;}
+tbody tr:nth-child(even){background:#faf9f7;}
+td{padding:6px 10px;vertical-align:middle;}
+.pnum{font-family:monospace;font-size:11px;color:#777;}
+.pr{text-align:right;font-weight:500;white-space:nowrap;}
+.pm{color:#e08020;}
+.abtn{background:#4a5e23;color:white;border:none;border-radius:5px;padding:5px 12px;font-size:12px;font-weight:600;}
+.ltbl th{font-size:11px;font-weight:600;color:#999;text-transform:uppercase;letter-spacing:.05em;padding:5px 0 5px 4px;border-bottom:2px solid #f0ede6;}
+.ltbl td{padding:7px 4px;border-bottom:1px solid #f5f3ef;vertical-align:middle;}
+.ld{font-size:13px;font-weight:500;}
+.lp{font-size:11px;color:#bbb;font-family:monospace;}
+.qi{width:52px;text-align:center;padding:5px 4px;border:1px solid #e0ddd6;border-radius:6px;font-size:14px;}
+.pi{width:80px;text-align:right;padding:5px 6px;border:1px solid #e0ddd6;border-radius:6px;font-size:14px;}
+.pi.miss{border-color:#e08020;}
+.xbtn{background:none;border:none;color:#ccc;font-size:20px;padding:0 4px;line-height:1;}
+.lbrow{display:grid;grid-template-columns:1fr 68px 78px 78px 28px;gap:8px;align-items:end;margin-bottom:10px;}
+.lbrow select{padding:8px 10px;border:1px solid #e0ddd6;border-radius:7px;font-size:13px;background:white;width:100%;appearance:none;-webkit-appearance:none;}
+.lbrow input{padding:8px 6px;border:1px solid #e0ddd6;border-radius:7px;font-size:14px;text-align:right;width:100%;}
+.ll{font-size:10px;color:#999;margin-bottom:3px;}
+@media(max-width:500px){.lbrow{grid-template-columns:1fr 58px 68px 68px 24px;gap:5px;}}
+.pua{border:2px dashed #c8d4b0;border-radius:10px;padding:20px;text-align:center;cursor:pointer;background:#fafcf7;position:relative;}
+.pua:hover,.pua.drag{border-color:#4a5e23;background:#f3f7ec;}
+.pua input[type=file]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;margin-top:14px;}
+.pt{position:relative;border-radius:8px;overflow:hidden;aspect-ratio:1;border:1px solid #e0ddd6;}
+.pt img{width:100%;height:100%;object-fit:cover;display:block;}
+.pc{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.55);padding:3px 6px;}
+.pc input{background:transparent;border:none;color:white;font-size:11px;width:100%;outline:none;padding:0;}
+.pc input::placeholder{color:rgba(255,255,255,.5);}
+.prm{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.5);border:none;color:white;border-radius:50%;width:20px;height:20px;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;}
+.tbar{background:#1c2610;border-radius:12px;padding:16px 18px;display:flex;align-items:center;flex-wrap:wrap;gap:10px;}
+.ti{flex:1;min-width:80px;}
+.tl{font-size:11px;color:#888;margin-bottom:2px;}
+.tv{font-size:16px;font-weight:600;color:white;}
+.tg{font-size:21px;font-weight:800;color:#6b8c2a;}
+.tdiv{width:1px;height:36px;background:#333;flex-shrink:0;}
+.abtns{display:flex;gap:8px;flex-wrap:wrap;}
+.bs{background:#2a3518;color:#ccc;border:1px solid #444;border-radius:8px;padding:11px 15px;font-size:13px;font-weight:500;white-space:nowrap;}
+.bp{background:#4a5e23;color:white;border:none;border-radius:8px;padding:11px 16px;font-size:13px;font-weight:600;white-space:nowrap;}
+.bs:active,.bp:active{opacity:.8;}
+.pvbar{background:white;border-bottom:1px solid #e8e6e0;padding:10px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+.bback{background:none;border:1px solid #e0ddd6;border-radius:7px;padding:9px 14px;font-size:13px;color:#555;}
+.prop{max-width:760px;margin:20px auto 40px;background:white;border-radius:12px;overflow:hidden;border:1px solid #e8e6e0;box-shadow:0 4px 20px rgba(0,0,0,.06);}
+.ph{background:#1c2610;padding:26px 34px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;}
+.plr{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.plr img{width:48px;height:48px;border-radius:8px;object-fit:cover;}
+.pco{color:white;font-weight:700;font-size:16px;}
+.ptag{color:#6b8c2a;font-size:11px;letter-spacing:.08em;font-weight:500;}
+.pct{color:#888;font-size:12px;line-height:1.9;margin-top:5px;}
+.pnl{color:#6b8c2a;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;text-align:right;}
+.pnum-v{color:white;font-weight:700;font-size:20px;text-align:right;}
+.pmt{color:#888;font-size:12px;line-height:1.9;text-align:right;margin-top:5px;}
+.pb{padding:26px 34px;}
+.psl{font-size:10px;font-weight:700;color:#4a5e23;text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px;}
+.pdiv{border:none;border-top:1px solid #f0ede6;margin:18px 0;}
+.pg2{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:20px;}
+@media(max-width:520px){.pg2{grid-template-columns:1fr;}}
+.pcn{font-weight:700;font-size:15px;margin-bottom:2px;}
+.pcd{font-size:13px;color:#666;line-height:1.7;}
+.ptbl{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:18px;}
+.ptbl th{text-align:left;padding:6px 0;font-weight:600;color:#555;font-size:11px;border-bottom:2px solid #1c2610;}
+.ptbl th.r,.ptbl td.r{text-align:right;}
+.ptbl td{padding:7px 0;border-bottom:1px solid #f0ede6;}
+.ptbl tr:nth-child(even) td{background:#faf9f7;}
+.ptbox{display:flex;justify-content:flex-end;margin-bottom:20px;}
+.pti{width:260px;}
+.ptr{display:flex;justify-content:space-between;padding:6px 0;font-size:13px;color:#666;border-bottom:1px solid #f0ede6;}
+.ptg{display:flex;justify-content:space-between;padding:10px 0;border-bottom:2px solid #1c2610;}
+.ptgl{font-weight:700;font-size:15px;}
+.ptgv{font-weight:800;font-size:17px;color:#4a5e23;}
+.pnotes{background:#faf9f7;border-radius:8px;border:1px solid #f0ede6;padding:14px;margin-bottom:18px;}
+.pnotes p{font-size:12px;color:#555;line-height:1.7;white-space:pre-wrap;}
+.ppg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px;margin-bottom:18px;}
+.ppi{border-radius:6px;overflow:hidden;border:1px solid #e8e6e0;}
+.ppi img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover;}
+.ppic{font-size:10px;color:#888;padding:4px 6px;background:#faf9f7;text-align:center;}
+@media(max-width:500px){.ppg{grid-template-columns:repeat(2,1fr);}}
+.psig{display:grid;grid-template-columns:1fr 1fr;gap:32px;border-top:2px solid #f0ede6;padding-top:20px;}
+@media(max-width:500px){.psig{grid-template-columns:1fr;}}
+.sln{border-bottom:1px solid #ccc;height:34px;margin-bottom:5px;}
+.sc{font-size:11px;color:#aaa;}
+.sn{font-size:11px;color:#ccc;margin-top:10px;line-height:1.6;}
+@media print{
+  .no-print{display:none!important;}
+  body{background:white;}
+  .prop{box-shadow:none;border:none;margin:0;border-radius:0;}
+  .ppg{page-break-inside:avoid;}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var LOGO="data:image/png;base64,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";
+const PARTS=[{"pn": "SYSCOSMO4W", "mfr": "System Sensor", "cat": "Fire Alarm", "sub": "Smoke Detector", "desc": "4-Wire Conventional Smoke/CO Combo Detector", "price": 60.8}, {"pn": "SYSCOSMO2W", "mfr": "System Sensor", "cat": "Fire Alarm", "sub": "Smoke Detector", "desc": "2-Wire Conventional Smoke/CO Combo Detector", "price": 56.0}, {"pn": "SYSCOSMOD4W", "mfr": "System Sensor", "cat": "Fire Alarm", "sub": "Smoke Detector", "desc": "4-Wire Smoke/CO Combo Detector with Disconnect", "price": 64.0}, {"pn": "SYSCOSMOD2W", "mfr": "System Sensor", "cat": "Fire Alarm", "sub": "Smoke Detector", "desc": "2-Wire Smoke/CO Combo Detector with Disconnect", "price": 60.8}, {"pn": "SYSSPHOTOHT", "mfr": "System Sensor", "cat": "Fire Alarm", "sub": "Smoke Detector", "desc": "Addressable Photoelectric Smoke Detector with Sounder", "price": 72.0}, {"pn": "FIRSD365TIV", "mfr": "Fire-Lite", "cat": "Fire Alarm", "sub": "Smoke Detector", "desc": "Intelligent Photoelectric Smoke Detector LiteSpeed Protocol", "price": 67.2}, {"pn": "POTPAD200PHD", "mfr": "Potter Electric", "cat": "Fire Alarm", "sub": "Smoke Detector", "desc": "Addressable Photoelectric/Heat Combination Detector", "price": 76.8}, {"pn": "POTPAD300PHD", "mfr": "Potter Electric", "cat": "Fire Alarm", "sub": "Smoke Detector", "desc": "Addressable Photo/Heat Combo Detector High Performance", "price": 83.2}, {"pn": "SYSSFD135", "mfr": "System Sensor", "cat": "Fire Alarm", "sub": "Heat Detector", "desc": "Fixed Temperature 135F Heat Detector 2-Wire", "price": 28.8}, {"pn": "SYSSROR135", "mfr": "System Sensor", "cat": "Fire Alarm", "sub": "Heat Detector", "desc": "Rate-of-Rise + 135F Fixed Temp Heat Detector 4-Wire", "price": 35.2}, {"pn": "SYSFASD851", "mfr": "System Sensor", "cat": "Fire Alarm", "sub": "Duct Detector", "desc": "Addressable HVAC Duct Smoke Detector", "price": 286.75}, {"pn": "SYSD4W120", "mfr": "System Sensor", "cat": "Fire Alarm", "sub": "Duct Detector", "desc": "Conventional 4-Wire HVAC Duct Smoke Detector", "price": 255.75}, {"pn": "EDFEG1RT", "mfr": "Edwards Fire", "cat": "Fire Alarm", "sub": "Pull Station", "desc": "Non-Coded Manual Pull Station Single Action", "price": 76.8}, {"pn": "NAPMSP1", "mfr": "Napco Security", "cat": "Fire Alarm", "sub": "Pull Station", "desc": "Addressable Single-Action Pull Station", "price": 111.6}, {"pn": "SYSSPCW", "mfr": "System Sensor", "cat": "Fire Alarm", "sub": "Horn/Strobe", "desc": "Wall-Mount Horn/Strobe White 24VDC", "price": 60.8}, {"pn": "SYSSPCC", "mfr": "System Sensor", "cat": "Fire Alarm", "sub": "Horn/Strobe", "desc": "Ceiling-Mount Horn/Strobe White 24VDC", "price": 64.0}, {"pn": "SYSSPSR", "mfr": "System Sensor", "cat": "Fire Alarm", "sub": "Horn/Strobe", "desc": "Wall-Mount Horn/Strobe Red 24VDC", "price": 60.8}, {"pn": "NAPNAP5400", "mfr": "Napco Security", "cat": "Fire Alarm", "sub": "Module", "desc": "Addressable Monitor Module", "price": 100.75}, {"pn": "NAPNAP5401", "mfr": "Napco Security", "cat": "Fire Alarm", "sub": "Module", "desc": "Addressable Control Module Relay Output", "price": 111.6}, {"pn": "BAT12V7AH", "mfr": "Universal/CSB", "cat": "Fire Alarm", "sub": "Battery", "desc": "12V 7Ah Sealed Lead-Acid Battery FACP Backup", "price": 29.7}, {"pn": "BAT12V18AH", "mfr": "Universal/CSB", "cat": "Fire Alarm", "sub": "Battery", "desc": "12V 18Ah Sealed Lead-Acid Battery Remote Power", "price": 57.75}, {"pn": "BAT12V12AH", "mfr": "Universal/CSB", "cat": "Fire Alarm", "sub": "Battery", "desc": "12V 12Ah Sealed Lead-Acid Battery", "price": 46.2}, {"pn": "BAT12V26AH", "mfr": "Universal/CSB", "cat": "Fire Alarm", "sub": "Battery", "desc": "12V 26Ah Sealed Lead-Acid Battery Large System", "price": 88.0}, {"pn": "ALTPD8CB", "mfr": "Altronix", "cat": "Fire Alarm", "sub": "Power Supply", "desc": "8-Output Power Distribution Module 12/24VDC", "price": 131.75}, {"pn": "ALTAL600ULACM", "mfr": "Altronix", "cat": "Fire Alarm", "sub": "Power Supply", "desc": "6A Access/Fire Alarm Power Supply with Battery Backup", "price": 262.5}, {"pn": "NAPSLA1", "mfr": "Napco Security", "cat": "Fire Alarm", "sub": "Communicator", "desc": "StarLink LTE Universal Fire/Burg Communicator", "price": 292.5}, {"pn": "NAPSLAFIRE", "mfr": "Napco Security", "cat": "Fire Alarm", "sub": "Communicator", "desc": "StarLink Fire Cellular Communicator Dedicated FA", "price": 322.5}, {"pn": "AXAXM300", "mfr": "Napco Security", "cat": "Access Control", "sub": "Access Panel", "desc": "AxiomV Integrated Access Control Panel 4-Door", "price": 703.25}, {"pn": "AXAXM100", "mfr": "Napco Security", "cat": "Access Control", "sub": "Access Panel", "desc": "AxiomV Single-Door IP Access Controller", "price": 421.8}, {"pn": "CAMMULTIPROX", "mfr": "Camden", "cat": "Access Control", "sub": "Card Reader", "desc": "Multi-Technology Proximity Card Reader 125kHz", "price": 100.75}, {"pn": "CAMCX-KPR2-USB", "mfr": "Camden", "cat": "Access Control", "sub": "Keypad/Reader", "desc": "Proximity Reader + Keypad Combination Wiegand", "price": 144.4}, {"pn": "CAMCX-91T", "mfr": "Camden", "cat": "Access Control", "sub": "REX Sensor", "desc": "Passive IR Request-to-Exit Sensor Tamper-Resistant", "price": 76.8}, {"pn": "CAMCX-91", "mfr": "Camden", "cat": "Access Control", "sub": "REX Sensor", "desc": "Passive IR Request-to-Exit Sensor", "price": 67.2}, {"pn": "CAMMAG600", "mfr": "Camden", "cat": "Access Control", "sub": "Mag Lock", "desc": "600 lb Single Door Electromagnetic Lock", "price": 235.6}, {"pn": "CAMMAG1200", "mfr": "Camden", "cat": "Access Control", "sub": "Mag Lock", "desc": "1200 lb Double Door Electromagnetic Lock", "price": 397.5}, {"pn": "CAMREX-PBTTON", "mfr": "Camden", "cat": "Access Control", "sub": "Exit Button", "desc": "Request-to-Exit Push Button Surface Mount", "price": 46.2}, {"pn": "PAR-P6DRIRA2812NH-AI", "mfr": "Paramont", "cat": "CCTV", "sub": "Outdoor Dome", "desc": "6MP IP Outdoor Dome Camera Motorized 2.8-12mm AI Analytics", "price": 185.0}, {"pn": "PARECCX2812AI", "mfr": "Paramont", "cat": "CCTV", "sub": "Outdoor Bullet", "desc": "5MP IP Outdoor Bullet Camera 2.8-12mm Motorized IR 197ft", "price": 165.0}, {"pn": "HANQNV8080R", "mfr": "Hanwha", "cat": "CCTV", "sub": "Outdoor Dome", "desc": "5MP IR Outdoor IP Dome Camera", "price": 220.0}, {"pn": "HANXNV8080R", "mfr": "Hanwha", "cat": "CCTV", "sub": "Outdoor Bullet", "desc": "5MP IR Outdoor IP Bullet Camera", "price": 245.0}, {"pn": "HANQNV6082R", "mfr": "Hanwha", "cat": "CCTV", "sub": "Indoor Dome", "desc": "2MP IR Indoor IP Dome Camera 2.8mm Fixed", "price": 95.0}, {"pn": "HANQRN1610S", "mfr": "Hanwha", "cat": "CCTV", "sub": "NVR", "desc": "16-Channel 8MP Network Video Recorder 2-Bay HDD", "price": 680.0}, {"pn": "HANQRN810S", "mfr": "Hanwha", "cat": "CCTV", "sub": "NVR", "desc": "8-Channel 8MP Network Video Recorder", "price": 420.0}, {"pn": "CABLE18-2SH", "mfr": "Belden", "cat": "Low Voltage", "sub": "FA Cable", "desc": "18 AWG 2-Conductor Shielded Fire Alarm Cable 1000ft", "price": null}, {"pn": "CABLE18-4SH", "mfr": "Belden", "cat": "Low Voltage", "sub": "FA Cable", "desc": "18 AWG 4-Conductor Shielded Fire Alarm Cable 1000ft", "price": null}, {"pn": "CABLECAT6", "mfr": "Belden", "cat": "Low Voltage", "sub": "Network Cable", "desc": "CAT6 UTP Ethernet Cable 1000ft Blue", "price": null}, {"pn": "CABLECAT6SHLD", "mfr": "Belden", "cat": "Low Voltage", "sub": "Network Cable", "desc": "CAT6 FTP Shielded Ethernet Cable 1000ft Grey", "price": null}, {"pn": "CABLE16-4AC", "mfr": "Belden", "cat": "Low Voltage", "sub": "AC Cable", "desc": "16 AWG 4-Conductor Unshielded Cable Access Control 500ft", "price": null}, {"pn": "ALTACM8", "mfr": "Altronix", "cat": "Low Voltage", "sub": "Power", "desc": "8-Output Access Control Power Distribution Module", "price": null}, {"pn": "ALTENC1412F", "mfr": "Altronix", "cat": "Low Voltage", "sub": "Enclosure", "desc": "Steel Electrical Enclosure 14x12x4 Hinged Cover", "price": null}, {"pn": "ALTENC1816", "mfr": "Altronix", "cat": "Low Voltage", "sub": "Enclosure", "desc": "Steel Enclosure 18x16x4.5 Access Control Applications", "price": null}, {"pn": "NAPNAP2WAYPIR", "mfr": "Napco Security", "cat": "Burglar", "sub": "Motion", "desc": "Dual-Tech PIR/Microwave Interior Motion Detector", "price": null}, {"pn": "NAPNAPDTPIR", "mfr": "Napco Security", "cat": "Burglar", "sub": "Motion", "desc": "PIR Interior Motion Detector Pet-Immune 60 lbs", "price": null}, {"pn": "NAPNAP700SMB", "mfr": "Napco Security", "cat": "Burglar", "sub": "Contact", "desc": "Surface-Mount Door/Window Contact Brown", "price": null}];
+const LABOR_PRESETS=[{"label": "Annual Inspection - Small (up to 50 devices)", "hours": 4, "rate": 95}, {"label": "Annual Inspection - Medium (51-150 devices)", "hours": 7, "rate": 95}, {"label": "Annual Inspection - Large (150+ devices)", "hours": 10, "rate": 95}, {"label": "Service Call - Standard", "hours": 2, "rate": 110}, {"label": "Service Call - Complex", "hours": 4, "rate": 110}, {"label": "Panel Programming", "hours": 3, "rate": 125}, {"label": "Device Installation (per device)", "hours": 0.5, "rate": 95}, {"label": "Access Control Door (per door)", "hours": 4, "rate": 110}, {"label": "CCTV Camera Install (per camera)", "hours": 1.5, "rate": 95}, {"label": "NVR / System Setup", "hours": 3, "rate": 110}, {"label": "Site Survey / Estimate", "hours": 2, "rate": 95}, {"label": "Custom - enter hours manually", "hours": 0, "rate": 95}];
+const JOB_TYPES=["Annual Inspection", "Service Call", "Estimate / Survey", "Installation", "Access Control Install", "CCTV Install", "Monitoring Setup", "Other"];
+const CATS=["All", "Access Control", "Burglar", "CCTV", "Fire Alarm", "Low Voltage"];
+
+var S={
+  tab:"estimate",
+  co:{company:"",contact:"",address:"",city:"",state:"FL",zip:"",phone:"",email:""},
+  job:{type:"Annual Inspection",scope:"",date:new Date().toISOString().split("T")[0]},
+  lines:[],labor:[],notes:"",photos:[],
+  search:"",filterCat:"All",
+  estId:"EST-"+(Math.floor(Math.random()*9000)+1000)
+};
+
+function fmt(n){if(n==null)return"--";return"$"+Number(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,",");}
+function today(){return new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});}
+function validUntil(){var d=new Date();d.setDate(d.getDate()+30);return d.toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});}
+function fmtDate(s){if(!s)return today();try{return new Date(s+"T12:00:00").toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});}catch(e){return s;}}
+function pTotal(){return S.lines.reduce(function(t,l){return t+(parseFloat(l.unitPrice)||0)*l.qty;},0);}
+function lTotal(){return S.labor.reduce(function(t,l){return t+(parseFloat(l.hours)||0)*(parseFloat(l.rate)||0);},0);}
+function gTotal(){return pTotal()+lTotal();}
+function fp(){return PARTS.filter(function(p){var q=S.search.toLowerCase();return(!q||p.desc.toLowerCase().indexOf(q)>=0||p.pn.toLowerCase().indexOf(q)>=0||p.mfr.toLowerCase().indexOf(q)>=0)&&(S.filterCat==="All"||p.cat===S.filterCat);});}
+function esc(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+function render(){document.getElementById("app").innerHTML=buildApp();}
+
+function buildApp(){
+  return '<div class="header"><div class="hi"><img src="'+LOGO+'" alt="FIS"><div><div class="hn">Frontline Integration Systems</div><div class="hs">Veteran-Owned &middot; DeLand, FL</div></div></div>'
+    +'<div class="tabs no-print"><button class="tab '+(S.tab==="estimate"?"on":"")+'" onclick="setTab('estimate')">Build Estimate</button>'
+    +'<button class="tab '+(S.tab==="preview"?"on":"")+'" onclick="setTab('preview')">Preview</button></div></div>'
+    +(S.tab==="estimate"?buildEstimate():buildPreview());
+}
+
+function buildEstimate(){
+  var PARTS=fp();
+  var prows=parts.map(function(p){
+    return '<tr><td class="pnum">'+esc(p.pn)+'</td><td>'+esc(p.desc)+'</td>'
+      +'<td class="pr '+(p.price?"":"pm")+'">'+(p.price?fmt(p.price):"Set cost")+'</td>'
+      +'<td><button class="abtn" onclick="addPart(''+p.pn+'')">+ Add</button></td></tr>';
+  }).join("");
+
+  var lrows="";
+  if(S.lines.length){
+    lrows='<div style="margin-top:14px;"><div class="slbl" style="margin-bottom:8px;">Selected parts</div>'
+      +'<table class="ltbl"><thead><tr><th>Description</th><th style="text-align:center;width:58px;">Qty</th>'
+      +'<th style="text-align:right;width:90px;">Unit price</th><th style="text-align:right;width:86px;">Total</th><th style="width:28px;"></th></tr></thead><tbody>';
+    S.lines.forEach(function(l){
+      lrows+='<tr><td><div class="ld">'+esc(l.desc)+'</div><div class="lp">'+esc(l.pn)+'</div></td>'
+        +'<td style="text-align:center;"><input class="qi" type="number" min="1" value="'+l.qty+'" onchange="updateQty(''+l.pn+'',this.value)"></td>'
+        +'<td style="text-align:right;"><input class="pi '+(l.unitPrice==null?"miss":"")+'" type="number" step="0.01" value="'+(l.unitPrice!=null?l.unitPrice:"")+'" placeholder="Enter" onchange="updatePrice(''+l.pn+'',this.value)"></td>'
+        +'<td style="text-align:right;font-weight:600;">'+(l.unitPrice!=null?fmt(l.unitPrice*l.qty):"--")+'</td>'
+        +'<td><button class="xbtn" onclick="removeLine(''+l.pn+'')">&#215;</button></td></tr>';
+    });
+    lrows+='</tbody></table></div>';
+  }
+
+  var labrows=S.labor.map(function(l){
+    var opts=LABOR_PRESETS.map(function(p){return'<option'+(p.label===l.label?' selected':'')+'>'+esc(p.label)+'</option>';}).join("");
+    return '<div class="lbrow"><div><div class="ll">Description</div><select onchange="updateLabor('+l.id+','label',this.value)">'+opts+'</select></div>'
+      +'<div><div class="ll">Hours</div><input type="number" step="0.5" min="0" value="'+l.hours+'" onchange="updateLabor('+l.id+','hours',this.value)"></div>'
+      +'<div><div class="ll">Rate/hr</div><input type="number" step="1" min="0" value="'+l.rate+'" onchange="updateLabor('+l.id+','rate',this.value)"></div>'
+      +'<div style="display:flex;align-items:flex-end;padding-bottom:2px;font-weight:600;font-size:13px;justify-content:flex-end;">'+fmt(l.hours*l.rate)+'</div>'
+      +'<div style="display:flex;align-items:flex-end;padding-bottom:2px;"><button class="xbtn" onclick="removeLabor('+l.id+')">&#215;</button></div></div>';
+  }).join("");
+
+  var pthumbs=S.photos.map(function(p){
+    return '<div class="pt"><img src="'+p.dataUrl+'" alt="site photo">'
+      +'<div class="pc"><input type="text" value="'+esc(p.caption)+'" placeholder="Add caption..." onchange="updateCaption('+p.id+',this.value)"></div>'
+      +'<button class="prm" onclick="removePhoto('+p.id+')">&#215;</button></div>';
+  }).join("");
+
+  var catOpts=CATS.map(function(c){return'<option'+(c===S.filterCat?' selected':'')+'>'+c+'</option>';}).join("");
+  var jobOpts=JOB_TYPES.map(function(t){return'<option'+(t===S.job.type?' selected':'')+'>'+t+'</option>';}).join("");
+
+  return '<div class="main">'
+    +'<div class="g2">'
+    +'<div class="card"><div class="slbl">Customer info</div>'
+    +'<div style="display:flex;flex-direction:column;gap:10px;">'
+    +'<div class="fld"><label>Company name</label><input type="text" value="'+esc(S.co.company)+'" oninput="S.co.company=this.value" placeholder="AdventHealth DeLand"></div>'
+    +'<div class="g2"><div class="fld"><label>Contact name</label><input type="text" value="'+esc(S.co.contact)+'" oninput="S.co.contact=this.value" placeholder="Jennifer Walsh"></div>'
+    +'<div class="fld"><label>Phone</label><input type="tel" value="'+esc(S.co.phone)+'" oninput="S.co.phone=this.value" placeholder="(386) 943-4522"></div></div>'
+    +'<div class="fld"><label>Email</label><input type="email" value="'+esc(S.co.email)+'" oninput="S.co.email=this.value" placeholder="contact@company.com"></div>'
+    +'<div class="fld"><label>Address</label><input type="text" value="'+esc(S.co.address)+'" oninput="S.co.address=this.value" placeholder="700 E Plymouth Ave"></div>'
+    +'<div class="g3"><div class="fld"><label>City</label><input type="text" value="'+esc(S.co.city)+'" oninput="S.co.city=this.value" placeholder="DeLand"></div>'
+    +'<div class="fld"><label>State</label><input type="text" value="'+esc(S.co.state)+'" oninput="S.co.state=this.value"></div>'
+    +'<div class="fld"><label>Zip</label><input type="text" value="'+esc(S.co.zip)+'" oninput="S.co.zip=this.value" placeholder="32720"></div></div>'
+    +'</div></div>'
+    +'<div class="card"><div class="slbl">Job details</div>'
+    +'<div style="display:flex;flex-direction:column;gap:10px;">'
+    +'<div class="fld"><label>Job type</label><div class="sw"><select onchange="S.job.type=this.value">'+jobOpts+'</select></div></div>'
+    +'<div class="fld"><label>Proposal date</label><input type="date" value="'+S.job.date+'" onchange="S.job.date=this.value"></div>'
+    +'<div class="fld"><label>Scope of work</label><textarea oninput="S.job.scope=this.value" placeholder="Describe the work -- this appears on the proposal.">'+esc(S.job.scope)+'</textarea></div>'
+    +'</div></div></div>'
+
+    +'<div class="card"><div class="slbl">Parts</div>'
+    +'<div class="srow"><div style="position:relative;flex-shrink:0;">'
+    +'<select onchange="S.filterCat=this.value;render()" style="padding:9px 26px 9px 10px;border:1px solid #e0ddd6;border-radius:8px;font-size:14px;background:white;outline:none;appearance:none;-webkit-appearance:none;">'+catOpts+'</select>'
+    +'<span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);color:#888;pointer-events:none;font-size:11px;">&#9662;</span></div>'
+    +'<input type="text" value="'+esc(S.search)+'" oninput="S.search=this.value;render()" placeholder="Search by name, part #, brand..."></div>'
+    +'<div class="pscroll"><table><thead><tr><th>Part #</th><th>Description</th><th style="text-align:right;">Price</th><th style="width:68px;"></th></tr></thead>'
+    +'<tbody>'+(prows||'<tr><td colspan="4" style="padding:20px;text-align:center;color:#bbb;font-size:13px;">No parts match</td></tr>')+'</tbody></table></div>'
+    +lrows+'</div>'
+
+    +'<div class="card"><div style="display:flex;align-items:center;margin-bottom:12px;">'
+    +'<div class="slbl" style="margin-bottom:0;flex:1;">Labor</div>'
+    +'<button class="bp" style="padding:8px 13px;font-size:13px;" onclick="addLabor()">+ Add labor</button></div>'
+    +(S.labor.length===0?'<div style="color:#bbb;font-size:13px;text-align:center;padding:14px 0;">Click "+ Add labor" to include labor on this proposal</div>':labrows)
+    +'</div>'
+
+    +'<div class="card"><div style="display:flex;align-items:center;margin-bottom:12px;">'
+    +'<div class="slbl" style="margin-bottom:0;flex:1;">Site photos</div>'
+    +'<span style="font-size:12px;color:#aaa;">'+S.photos.length+' photo'+(S.photos.length!==1?'s':'')+'</span></div>'
+    +'<div class="pua" ondragover="this.classList.add('drag');event.preventDefault()" ondragleave="this.classList.remove('drag')" ondrop="handleDrop(event)">'
+    +'<input type="file" accept="image/*" multiple onchange="handleFiles(this.files)">'
+    +'<div style="font-size:28px;margin-bottom:6px;">&#128247;</div>'
+    +'<div style="font-size:13px;color:#555;"><strong>Tap to add photos</strong> or drag and drop</div>'
+    +'<div style="font-size:12px;color:#aaa;margin-top:3px;">From camera roll or camera &middot; Multiple allowed</div></div>'
+    +(S.photos.length?'<div class="pgrid">'+pthumbs+'</div>':'')
+    +'</div>'
+
+    +'<div class="card"><div class="slbl">Notes / Terms</div>'
+    +'<div class="fld"><textarea oninput="S.notes=this.value" placeholder="Payment terms, warranty, special conditions...">'+esc(S.notes)+'</textarea></div></div>'
+
+    +'<div class="tbar no-print">'
+    +'<div class="ti"><div class="tl">Parts</div><div class="tv">'+fmt(pTotal())+'</div></div>'
+    +'<div class="tdiv"></div>'
+    +'<div class="ti"><div class="tl">Labor</div><div class="tv">'+fmt(lTotal())+'</div></div>'
+    +'<div class="tdiv"></div>'
+    +'<div class="ti"><div class="tl">Total</div><div class="tg">'+fmt(gTotal())+'</div></div>'
+    +'<div class="abtns">'
+    +'<button class="bs" onclick="setTab('preview')">Preview</button>'
+    +'<button class="bs" onclick="doPrint()">Print / PDF</button>'
+    +'<button class="bp" onclick="doEmail()">Email Proposal</button>'
+    +'</div></div></div>';
+}
+
+function buildPreview(){
+  var lrows=S.lines.map(function(l){
+    return '<tr><td class="pnum">'+esc(l.pn)+'</td><td>'+esc(l.desc)+'</td>'
+      +'<td class="r">'+l.qty+'</td><td class="r">'+(l.unitPrice!=null?fmt(l.unitPrice):"--")+'</td>'
+      +'<td class="r" style="font-weight:600;">'+(l.unitPrice!=null?fmt(l.unitPrice*l.qty):"--")+'</td></tr>';
+  }).join("");
+  var labrows=S.labor.map(function(l){
+    return '<tr><td colspan="2">'+esc(l.label)+'</td><td class="r">'+l.hours+'h</td>'
+      +'<td class="r">'+fmt(l.rate)+'/hr</td><td class="r" style="font-weight:600;">'+fmt(l.hours*l.rate)+'</td></tr>';
+  }).join("");
+  var psec="";
+  if(S.photos.length){
+    psec='<hr class="pdiv"><div class="psl">Site photos</div><div class="ppg">'
+      +S.photos.map(function(p){return'<div class="ppi"><img src="'+p.dataUrl+'" alt="site photo"><div class="ppic">'+esc(p.caption||"Site photo")+'</div></div>';}).join("")
+      +'</div>';
+  }
+  var jobmeta='<div style="font-size:13px;color:#555;line-height:2.1;">'
+    +'<div><span style="color:#aaa;">Type: </span><strong>'+esc(S.job.type)+'</strong></div>'
+    +'<div><span style="color:#aaa;">Date: </span>'+fmtDate(S.job.date)+'</div></div>';
+
+  return '<div class="pvbar no-print">'
+    +'<button class="bback" onclick="setTab('estimate')">&#8592; Back</button>'
+    +'<div style="flex:1;"></div>'
+    +'<button class="bs" onclick="doPrint()" style="padding:9px 14px;">Print / PDF</button>'
+    +'<button class="bp" onclick="doEmail()" style="padding:9px 14px;">Email Proposal</button></div>'
+    +'<div class="prop">'
+    +'<div class="ph"><div>'
+    +'<div class="plr"><img src="'+LOGO+'" alt="FIS"><div><div class="pco">Frontline Integration Systems</div><div class="ptag">VETERAN-OWNED &middot; DELAND, FL</div></div></div>'
+    +'<div class="pct">bsukovich@frontlineintegration.com<br>Fire Alarm &middot; Access Control &middot; CCTV &middot; Monitoring<br>License # EF20001234 &middot; NICET Certified &middot; SDVOSB</div></div>'
+    +'<div><div class="pnl">Proposal</div><div class="pnum-v">'+S.estId+'</div>'
+    +'<div class="pmt">Date: '+fmtDate(S.job.date)+'<br>Valid until: '+validUntil()+'</div></div></div>'
+    +'<div class="pb">'
+    +'<div class="pg2">'
+    +'<div><div class="psl">Prepared for</div><div class="pcn">'+(S.co.company||"--")+'</div>'
+    +(S.co.contact?'<div class="pcd">'+esc(S.co.contact)+'</div>':'')
+    +(S.co.address?'<div class="pcd">'+esc(S.co.address)+'</div>':'')
+    +((S.co.city||S.co.state)?'<div class="pcd">'+[S.co.city,S.co.state,S.co.zip].filter(Boolean).map(esc).join(", ")+'</div>':'')
+    +(S.co.phone?'<div class="pcd">'+esc(S.co.phone)+'</div>':'')
+    +(S.co.email?'<div class="pcd">'+esc(S.co.email)+'</div>':'')+'</div>'
+    +'<div><div class="psl">Job details</div>'+jobmeta+'</div></div>'
+    +(S.job.scope?'<hr class="pdiv"><div class="psl">Scope of work</div><div style="font-size:13px;color:#444;line-height:1.7;margin-bottom:4px;white-space:pre-wrap;">'+esc(S.job.scope)+'</div>':'')
+    +(S.lines.length?'<hr class="pdiv"><div class="psl">Materials</div><table class="ptbl"><thead><tr><th>Part #</th><th>Description</th><th class="r">Qty</th><th class="r">Unit price</th><th class="r">Total</th></tr></thead><tbody>'+lrows+'</tbody></table>':'')
+    +(S.labor.length?'<div class="psl">Labor</div><table class="ptbl"><thead><tr><th colspan="2">Description</th><th class="r">Hours</th><th class="r">Rate</th><th class="r">Total</th></tr></thead><tbody>'+labrows+'</tbody></table>':'')
+    +'<div class="ptbox"><div class="pti">'
+    +'<div class="ptr"><span>Materials</span><span>'+fmt(pTotal())+'</span></div>'
+    +'<div class="ptr"><span>Labor</span><span>'+fmt(lTotal())+'</span></div>'
+    +'<div class="ptg"><span class="ptgl">Total</span><span class="ptgv">'+fmt(gTotal())+'</span></div>'
+    +'</div></div>'
+    +(S.notes?'<div class="pnotes"><div class="psl">Notes</div><p>'+esc(S.notes)+'</p></div>':'')
+    +psec
+    +'<div class="psig">'
+    +'<div><div class="psl">Customer acceptance</div><div class="sln"></div>'
+    +'<div class="sc">Signature &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Date</div>'
+    +'<div class="sln" style="margin-top:18px;"></div><div class="sc">Printed name</div>'
+    +'<div class="sn">By signing, customer accepts this proposal. Valid 30 days from proposal date.</div></div>'
+    +'<div><div class="psl">Questions?</div>'
+    +'<div style="font-size:13px;color:#555;line-height:2.1;">bsukovich@frontlineintegration.com<br>'
+    +'<span style="color:#aaa;font-size:12px;">Frontline Integration Systems<br>Veteran-Owned &middot; DeLand, FL<br>License # EF20001234 &middot; NICET Certified</span>'
+    +'</div></div></div></div></div>';
+}
+
+function setTab(t){S.tab=t;render();if(t==="preview")window.scrollTo(0,0);}
+function addPart(pn){var p=PARTS.find(function(x){return x.pn===pn;});var ex=S.lines.find(function(x){return x.pn===pn;});if(ex){ex.qty++;}else{S.lines.push({pn:p.pn,mfr:p.mfr,cat:p.cat,desc:p.desc,qty:1,unitPrice:p.price});}render();}
+function updateQty(pn,v){var q=parseInt(v)||0;if(q<=0){S.lines=S.lines.filter(function(l){return l.pn!==pn;});}else{var l=S.lines.find(function(l){return l.pn===pn;});if(l)l.qty=q;}render();}
+function updatePrice(pn,v){var l=S.lines.find(function(l){return l.pn===pn;});if(l)l.unitPrice=parseFloat(v)||0;render();}
+function removeLine(pn){S.lines=S.lines.filter(function(l){return l.pn!==pn;});render();}
+function addLabor(){var p=LABOR_PRESETS[0];S.labor.push({id:Date.now(),label:p.label,hours:p.hours,rate:p.rate});render();}
+function updateLabor(id,field,val){var l=S.labor.find(function(l){return l.id===id;});if(!l)return;if(field==="label"){l.label=val;var p=LABOR_PRESETS.find(function(p){return p.label===val;});if(p&&p.hours>0){l.hours=p.hours;l.rate=p.rate;}}else{l[field]=parseFloat(val)||0;}render();}
+function removeLabor(id){S.labor=S.labor.filter(function(l){return l.id!==id;});render();}
+function handleFiles(files){Array.prototype.forEach.call(files,function(f){var r=new FileReader();r.onload=function(e){S.photos.push({id:Date.now()+Math.random(),dataUrl:e.target.result,caption:""});render();};r.readAsDataURL(f);});}
+function handleDrop(e){e.preventDefault();e.currentTarget.classList.remove("drag");var files=Array.prototype.filter.call(e.dataTransfer.files,function(f){return f.type.indexOf("image/")===0;});handleFiles(files);}
+function updateCaption(id,val){var p=S.photos.find(function(p){return p.id===id;});if(p)p.caption=val;}
+function removePhoto(id){S.photos=S.photos.filter(function(p){return p.id!==id;});render();}
+function doPrint(){S.tab="preview";render();setTimeout(function(){window.print();},350);}
+function doEmail(){
+  var sub=encodeURIComponent("Proposal "+S.estId+" -- "+(S.co.company||"New Customer"));
+  var body=encodeURIComponent("Proposal "+S.estId+" for "+(S.co.company||"[Customer]")+"\n\nDate: "+today()+"\nValid until: "+validUntil()+"\n\nParts: "+fmt(pTotal())+"\nLabor: "+fmt(lTotal())+"\nTotal: "+fmt(gTotal())+"\n\nScope: "+(S.job.scope||"See attached proposal.")+"\n\nTo accept, reply to this email or call us.\n\nFrontline Integration Systems\nVeteran-Owned, DeLand FL\nbsukovich@frontlineintegration.com");
+  window.open("mailto:bsukovich@frontlineintegration.com?subject="+sub+"&body="+body);
+}
+render();
+</script>
+</body>
+</html>
